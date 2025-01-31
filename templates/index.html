@@ -3,51 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Text Extractor</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            text-align: center;
-        }
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            text-align: left;
-            max-width: 80%;
-            margin: auto;
-            background: #f4f4f4;
-            padding: 10px;
-            border-radius: 5px;
-        }
-    </style>
-    <script>
-        function uploadPDF() {
-            let formData = new FormData();
-            let fileInput = document.getElementById("pdfFile");
-            formData.append("pdf", fileInput.files[0]);
-
-            fetch("/upload", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    document.getElementById("output").innerText = "Error: " + data.error;
-                } else {
-                    document.getElementById("output").innerText = data.text;
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        }
-    </script>
+    <title>PDF Summarizer</title>
 </head>
 <body>
-    <h1>Upload a PDF to Extract Text</h1>
-    <input type="file" id="pdfFile">
-    <button onclick="uploadPDF()">Extract Text</button>
-    <h2>Extracted Text:</h2>
-    <pre id="output"></pre>
+    <h2>Upload a PDF & Get Summarized Text</h2>
+    <form id="uploadForm">
+        <input type="file" id="pdf" accept="application/pdf" required>
+        <input type="number" id="page" placeholder="Page Number (0-indexed)" required>
+        <button type="submit">Extract & Summarize</button>
+    </form>
+    <h3>Summary:</h3>
+    <p id="summary"></p>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            formData.append("pdf", document.getElementById("pdf").files[0]);
+            formData.append("page", document.getElementById("page").value);
+
+            try {
+                const response = await fetch("/extract", {  // 🛠️ FIXED URL: Changed from `/upload` to `/extract`
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to extract text.");
+                }
+
+                const data = await response.json();
+                document.getElementById("summary").innerText = data.summary || "No summary available.";
+            } catch (error) {
+                document.getElementById("summary").innerText = "Error: " + error.message;
+            }
+        });
+    </script>
 </body>
 </html>
