@@ -7,7 +7,7 @@ from transformers import pipeline
 import os
 
 port = int(os.getenv("PORT", 5000))  # Use PORT from environment, default to 5000
-app.run(host="0.0.0.0", port=port)
+
 
 # Initialize the summarization pipeline
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn", trust_remote_code=True)
@@ -15,7 +15,7 @@ summarizer = pipeline("summarization", model="facebook/bart-large-cnn", trust_re
 print("Model loaded successfully!")
 
 app = Flask(__name__)
-
+app.run(host="0.0.0.0", port=port)
 # Set the path for file uploads
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
